@@ -99,17 +99,6 @@ local color_codes = {
     ['Throwable'] = Color3.new(1, 0.4, 0.4),
 }
 --[[
-    --------------------
-    Function Declaration
-    --------------------
-    All the functions that are used throughout the code
-]]
-function format(num, format)
-    local formatted = string.format(`%.{format}f`, num)
-    return formatted
-end
-
---[[
     ---------------------
     Component Declaration
     ---------------------
@@ -151,7 +140,7 @@ do
     function LootableComponent:constructor(item : Configuration)
         -- Setup:
         super.constructor(self, item)
-        self.Attributes = item:GetAttributes()
+        self.attributes = item:GetAttributes()
         local instance = item
         -- Interface:
         self.interface = {
@@ -184,7 +173,7 @@ do
     end
     function LootableComponent:constructPoints()
         local attachment = Instance.new("Attachment")
-        local _attributes = self.Attributes
+        local _attributes = self.attributes
         local pivotPos = _attributes.CFrame
         attachment.WorldCFrame = pivotPos
         attachment.Parent = Terrain
@@ -193,9 +182,13 @@ do
     function LootableComponent:setUpInterface()
         local _binding = self
         local bin = _binding.bin
+        local _attributes = self.attributes
         local instance : Configuration = _binding.object
         local interface = _binding.interface
         local point = self.points
+        -- Attributes:
+        local _name = instance:GetAttribute('ClassName')
+        local amount = instance:GetAttribute('Quantity')
         -- Instances:
         local BillboardGui = interface.BillboardGui
         local container = interface.container
@@ -211,7 +204,7 @@ do
         container.BackgroundTransparency = 1
         data.BackgroundTransparency = 1
         data.Font = Enum.Font.Nunito
-		data.Text = '.item | inf'
+		data.Text = `{_name:gsub('%.item', '')} {amount}x`
 		data.TextColor3 = color_codes[_Items:FindFirstChild(instance:GetAttribute('ClassName'), true).Parent.Name] or Color3.new(1, 0.8, 0.3)
 		data.TextSize = 16
 		data.TextStrokeTransparency = 0.3
@@ -235,16 +228,12 @@ do
         local data = interface.data
         -- Properties:
         local pivotPos = instance:GetAttribute('CFrame')
-        local _name = instance:GetAttribute('ClassName')
-        local amount = instance:GetAttribute('Quantity')
         -- Initialization:
         local positionDiff = pivotPos.Position - camera.CFrame.Position
 
         if positionDiff.Magnitude <= 500 then
             local _valueExisted = BillboardGui.Visible == false
 			BillboardGui.Enabled = true
-
-		    data.Text = `{_name:gsub('%.item', '')} {amount}x`
         else
             local _valueExisted_1 = BillboardGui.Visible == true
             BillboardGui.Enabled = false
@@ -259,10 +248,10 @@ end
     ---------------
     All the event listeners that are used throughout the code.
 ]]
-Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+LootableComponent.connections:add(Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
     CurrentCamera = Workspace.CurrentCamera
     return CurrentCamera
-end)
+end))
 LootableComponent.connections:add(static_objects.DescendantAdded:Connect(function(instance)
     if instance:FindFirstChild('Configuration') then
         local configuration = instance.Configuration
