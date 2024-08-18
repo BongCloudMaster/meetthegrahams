@@ -185,14 +185,17 @@ do
 		local data = _binding.data
 		local attachment = _binding.attachment
 		local bin = _binding.bin
-		local _Item
+		local _result
 		if data.ClassName ~= nil then
-			local _result = Items:FindFirstChild(data.ClassName, true)
-			if _result ~= nil then
-				_result = _result.Parent
+			local _result_1 = Items:FindFirstChild(data.ClassName, true)
+			if _result_1 ~= nil then
+				_result_1 = _result_1.Parent
 			end
-			_Item = _result
+			_result = _result_1
+		else
+			_result = nil
 		end
+		local _Item = _result
 		-- Instances:
 		local BillboardGui = Instance.new("BillboardGui")
 		local TextLabel = Instance.new("TextLabel")
@@ -208,21 +211,28 @@ do
 		TextLabel.AnchorPoint = Vector2.new(0.5, 0.5)
 		TextLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
 		TextLabel.Size = UDim2.new(1, 0, 0, 12)
-		local _result = data.ClassName
-		if _result ~= nil then
-			_result = string.gsub(_result, ".item", "")
+		local _result_1 = data.ClassName
+		if _result_1 ~= nil then
+			_result_1 = string.gsub(_result_1, ".item", "")
 		end
-		TextLabel.Text = `{_result} {data.Quantity}x`
-		if _Item ~= nil then
-			local _name = _Item.Name
-			local _condition = item_colors[_name]
-			if _condition == nil then
-				_condition = Color3.new(0.5, 0.5, 0)
-			end
-			TextLabel.TextColor3 = _condition
-		else
-			TextLabel.TextColor3 = Color3.new(0.5, 0.5, 0)
+		TextLabel.Text = `[{_result_1}] ({data.Quantity}x)`
+		--if (_Item !== undefined) {
+		local _result_2 = _Item
+		if _result_2 ~= nil then
+			_result_2 = _result_2.Name
 		end
+		local _condition = _result_2
+		if _condition == nil then
+			_condition = "Default"
+		end
+		local _condition_1 = item_colors[_condition]
+		if _condition_1 == nil then
+			_condition_1 = Color3.new(0.5, 0.5, 0)
+		end
+		TextLabel.TextColor3 = _condition_1
+		--} else {
+		--TextLabel.TextColor3 = new Color3(0.5, 0.5, 0);
+		--}
 		TextLabel.TextSize = 12
 		TextLabel.TextStrokeTransparency = 0.3
 		-- Initialize:
