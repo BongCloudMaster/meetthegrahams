@@ -274,4 +274,4 @@ end
 	 ***********************************************************
 ]]
 LootController.__init()
-return "Initialized Succesfully"
+return 0
