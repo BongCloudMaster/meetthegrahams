@@ -1,5 +1,9 @@
 -- Compiled with roblox-ts v2.3.0
-local Inventory_UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RelkzzRebranded/Aftermath/main/InvViewerOMENUI.lua"))()
+-- AFTERMATH INVENTORY VIEWER v1.1
+local Inventory_UI = loadstring(request({
+	Url = "https://raw.githubusercontent.com/RelkzzRebranded/Aftermath/main/InvViewerOMENUI.lua",
+	Method = "GET",
+}).Body)()
 local RunService = cloneref(game:GetService("RunService"))
 local UserInputService = cloneref(game:GetService("UserInputService"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
@@ -56,8 +60,8 @@ do
 		end
 	end
 	local function __init()
+		Inventory_UI.Parent = CoreGui
 		toggle = false
-		toggle = CoreGui
 		UserInputService.InputBegan:Connect(function(input, processedEvent)
 			if processedEvent then
 				return nil
