@@ -1,5 +1,7 @@
 -- Compiled with roblox-ts v2.3.0
 local Thermal_UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RelkzzRebranded/SharedRoblox_UI/main/THERMALVISION_GUI.lua"))()
+local repo = "https://raw.githubusercontent.com/RelkzzRebranded/LinoriaLib-Cloneref/main/"
+local initLib = loadstring(game:HttpGet(repo .. "Library.lua"))()
 -- task.defer() my beloved for 20+ above player count in each servers
 local CoreGui = cloneref(game:GetService("CoreGui"))
 local UserInputService = cloneref(game:GetService("UserInputService"))
@@ -180,7 +182,7 @@ do
 	end
 	function ThermalComponent:playBeepSound()
 		local newSound = beepSound:Clone()
-		newSound.Parent = CoreGui
+		newSound.Parent = self.character.PrimaryPart
 		newSound:Play()
 		newSound.Ended:Wait()
 		newSound:Destroy()
@@ -199,9 +201,9 @@ do
 		if localPlayerPosition and targetPlayerPosition then
 			local distance = (localPlayerPosition - targetPlayerPosition).Magnitude
 			local minDistance = 5
-			local maxDistance = 120
+			local maxDistance = 100
 			local maxBeepInterval = 1.0
-			local minBeepInterval = 0.5
+			local minBeepInterval = 0.7
 			if distance <= maxDistance then
 				local interval = math.clamp(((distance - minDistance) / (maxDistance - minDistance)) * maxBeepInterval, minBeepInterval, maxBeepInterval)
 				local currentTime = tick()
@@ -262,4 +264,5 @@ do
 	_container.__init = __init
 end
 ThermalController.__init()
-return nil
+initLib:Notify("Thermal Toggles Loaded! Updated!", 10)
+return 0
