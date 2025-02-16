@@ -26,7 +26,7 @@ local Workspace = game:GetService("Workspace")
 	 ***********************************************************
 ]]
 local wallcheck = false
-local radius = 300
+local radius = 2000
 --[[
 	***********************************************************
 	 * UTILITIES
