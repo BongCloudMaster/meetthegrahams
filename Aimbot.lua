@@ -1,7 +1,6 @@
 -- Compiled with roblox-ts v3.0.0
--- Most of these utility code is from terminal i asked permission to use it, and modified it
--- except for the ranged controller
--- feel free to learn from my code and terminals code as well. (yuiz go fuck yourself and i still hate you for what you did to me)
+-- BUG FIXES:
+-- >> Aimbot (get it haha)
 --[[
 	*
 	 * CREATOR NOTES:
@@ -26,7 +25,7 @@ local Workspace = game:GetService("Workspace")
 	 ***********************************************************
 ]]
 local wallcheck = false
-local radius = 2000
+local radius = 300
 --[[
 	***********************************************************
 	 * UTILITIES
@@ -327,28 +326,32 @@ setthreadidentity(8)
 	 ***********************************************************
 ]]
 local TOLERANCE = 0.05
-local MAX_ITERATIONS = 2000
-local getLaunch = function(tPos, rVel, rAcc, spec)
-	local p = tPos
-	local s = spec.speed
-	local _rAcc = rAcc
-	local _acceleration = spec.acceleration
-	local a = _rAcc - _acceleration
-	-- Define E(t) = ||v0(t)||^2 - v^2, where the required launch velocity is:
-	-- v0(t) = (s + rVel * t + 0.5 * a * t^2) / t.
+local MAX_ITERATIONS = 200
+local getAirLaunch = function(target, bullet, t_min, t_max)
+	if t_min == nil then
+		t_min = 0
+	end
+	if t_max == nil then
+		t_max = 1
+	end
+	local p = target.position
+	local v = target.velocity
+	local s = bullet.speed
+	local _acceleration = target.acceleration
+	local _acceleration_1 = bullet.acceleration
+	local a = _acceleration - _acceleration_1
+	-- define e(t) = ||v0(t)||^2 - v^2 where v0(t) = (p/t + v + 0.5at)
 	local E = function(t)
 		local _t = t
-		local _exp = p / _t
-		local _rVel = rVel
+		local _exp = p / _t + v
 		local _arg0 = 0.5 * t
 		local _arg0_1 = a * _arg0
-		local m = (_exp + _rVel + _arg0_1).Magnitude
+		local m = (_exp + _arg0_1).Magnitude
 		return m * m - s * s
 	end
 	-- bisection method to solve for t.
 	local t = 0
-	local t_min, t_max = 0, 10
-	for i = 0, MAX_ITERATIONS - 1 do
+	for _ = 1, MAX_ITERATIONS do
 		t = (t_min + t_max) / 2
 		local E_t = E(t)
 		if math.abs(E_t) < TOLERANCE then
@@ -362,11 +365,10 @@ local getLaunch = function(tPos, rVel, rAcc, spec)
 	end
 	-- find launch velocity using the computed t.
 	local _t = t
-	local _exp = p / _t
-	local _rVel = rVel
+	local _exp = p / _t + v
 	local _arg0 = 0.5 * t
 	local _arg0_1 = a * _arg0
-	local initialVelocity = _exp + _rVel + _arg0_1
+	local initialVelocity = _exp + _arg0_1
 	-- ensure initial velocity is approximately equal to speed.
 	if math.abs(initialVelocity.Magnitude - s) > TOLERANCE then
 		return nil
@@ -675,23 +677,27 @@ do
 			return nil
 		end
 		local gunStats = upvalue.info
+		if not gunStats.Special then
+			return nil
+		end
 		local caliber = calibers[gunStats.Special.caliber]
 		local energy = caliber.energy
-		-- This gave me a headache for HOURS. < joly shit hours the game?!??!
+		local _object = {}
+		local _left = "position"
 		local _position = target:getHead().Position
 		local _position_1 = CameraController.getPivot().Position
-		local _exp = _position - _position_1
-		local _exp_1 = target:getRoot().AssemblyLinearVelocity
-		local _exp_2 = Vector3.new(0, 0, 0)
-		local _object = {}
-		local _left = "speed"
+		_object[_left] = _position - _position_1
+		_object.velocity = target:getRoot().AssemblyLinearVelocity
+		_object.acceleration = Vector3.new(0, 0, 0)
+		local _object_1 = {}
+		local _left_1 = "speed"
 		local _condition = energy
 		if _condition == nil then
 			_condition = 1500
 		end
-		_object[_left] = _condition
-		_object.acceleration = Vector3.new(0, -Workspace.Gravity, 0)
-		return getLaunch(_exp, _exp_1, _exp_2, _object)
+		_object_1[_left_1] = _condition
+		_object_1.acceleration = Vector3.new(0, -Workspace.Gravity, 0)
+		return getAirLaunch(_object, _object_1)
 	end
 	local getTarget = function()
 		local list = PlayerComponent.players
